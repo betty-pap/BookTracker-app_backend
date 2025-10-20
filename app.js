@@ -17,6 +17,11 @@ const port = process.env.PORT || 3000;
 // Middleware 
 app.use(express.json());
 
+// root route
+app.get('/', (req, res) => {
+  res.json({ message: 'API is working!' });
+});
+
 // Import routes
 const bookRoute = require("./routes/bookRoutes");
 //const authRoutes = require("./routes/auth");
@@ -33,6 +38,7 @@ mongoose.connect(uri)
 app.listen(port, () => {
   console.log('backend running on port 3000 now');
 })
+
 
 
 
