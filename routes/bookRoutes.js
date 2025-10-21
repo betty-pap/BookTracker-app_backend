@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Book = require("../models/Book");
+// Polyfill fetch for CommonJS
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 
 // search route
@@ -133,3 +135,4 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
+
