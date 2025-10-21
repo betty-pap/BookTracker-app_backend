@@ -31,13 +31,14 @@ app.use("/api/books", bookRoute);
 //app.use("/api/auth", authRoutes);
 
 //DB connection
-mongoose.connect(uri)
-  .then(() => console.log('connected'))
-  .catch(err => console.log(err));
+//mongoose.connect(uri)
+//  .then(() => console.log('connected'))
+//  .catch(err => console.log(err));
 
 app.listen(port, () => {
   console.log('backend running on port 3000 now');
 })
+
 
 
 
