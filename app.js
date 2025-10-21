@@ -5,10 +5,12 @@ const cors = require('cors');
 
 
 const app = express();
-app.use(cors({
-  origin: ['http://localhost:8081', 'exp://localhost:19000', 'http://localhost:3000'], // Expo URLs
-  credentials: true
-}));
+app.use(cors(
+//   {
+//   origin: ['http://localhost:8081', 'exp://localhost:19000', 'http://localhost:3000', 'https://booktracker-appbackend-production.up.railway.app/'], 
+//   credentials: true
+// }
+));
 
 //from env file
 const uri = process.env.MONGO_URI;
@@ -38,6 +40,7 @@ mongoose.connect(uri)
 app.listen(port, '0.0.0.0', () => {
   console.log('backend running on port 3000 now');
 });
+
 
 
 
