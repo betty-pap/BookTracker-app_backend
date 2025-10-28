@@ -5,6 +5,7 @@ const Book = require("../models/Book");
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 
+
 // search route
 router.get("/search/:query", async (req, res) => {
   try {
@@ -12,7 +13,7 @@ router.get("/search/:query", async (req, res) => {
     const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`);
 
     if (!response.ok) {
-      return res.status(500).json({ error: "Failed to fetch from Google Books" });
+      return res.status(500).json({ error: "Failed to fetch from Open Library" });
     }
 
     const data= await response.json();
@@ -30,7 +31,36 @@ router.get("/details/:workId", async (req, res) => {
     const { workId } = req.params;
     const response = await fetch(`https://openlibrary.org/works/${workId}.json`);
     const data = await response.json();
-    res.json(data);
+
+    // Extract author names properly
+    let authors = [];
+    if (data.authors) {
+      // Fetch author names if we have author references
+      const authorPromises = data.authors.map(async (author) => {
+        try {
+          const authorRes = await fetch(`https://openlibrary.org${author.author.key}.json`);
+          const authorData = await authorRes.json();
+          return authorData.name;
+        } catch (error) {
+          return "Unknown Author";
+        }
+      });
+      authors = await Promise.all(authorPromises);
+    }
+
+    // Get cover image
+    const coverUrl = data.covers && data.covers.length > 0 
+      ? `https://covers.openlibrary.org/b/id/${data.covers[0]}-L.jpg` 
+      : null;
+
+    // Send complete book data
+    res.json({
+      ...data,
+      coverUrl,
+      author_names: authors, // Add author names in the format your frontend expects
+      authors: authors,      // Alternative format
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch book details" });
@@ -38,25 +68,8 @@ router.get("/details/:workId", async (req, res) => {
 });
 
 
-//book covers 
-router.get('/details/:olid', async (req, res) => {
-  try {
-    const { olid } = req.params;
-    const response = await fetch(`https://openlibrary.org/works/${olid}.json`);
-    const book = await response.json();
-
-    // Add cover URL to the response
-    const coverUrl = book.covers
-      ? `https://covers.openlibrary.org/b/id/${book.covers[0]}-M.jpg`
-      : null;
-
-    res.json({ ...book, coverUrl });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch book' });
-  }
-});
-
 //shelfs
+
 
 // Get all books with a given status (shelf)
 router.get("/shelf/:status", async (req, res) => {
@@ -72,14 +85,12 @@ router.get("/shelf/:status", async (req, res) => {
 
 // Add a book to a shelf
 router.post("/shelf/:status", async (req, res) => {
-  //const bookData = req.body; // book object from frontend
- 
   try {
-    //const book = new Book({ ...bookData, status});
     const { 
       title, 
       author, 
       cover, 
+      cover_i,
       workId,
       pageRead 
     } = req.body;
@@ -89,6 +100,7 @@ router.post("/shelf/:status", async (req, res) => {
       title,
       author,
       cover,
+      cover_i,
       workId,
       status: status || 'tbr',
       pageRead: pageRead || 0,
@@ -135,4 +147,3 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
-
