@@ -27,6 +27,7 @@ const bookSchema = new mongoose.Schema({
     type: String,
     default: "https://placehold.co/100x150?text=No+Cover"
   },
+  cover_i: String,
   workId: String, //open library id
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
 }, {
