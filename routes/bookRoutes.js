@@ -137,13 +137,23 @@ router.put("/:id/status", async (req, res) => {
 });
 
 // Remove a book
-router.delete("/:id", async (req, res) => {
+router.delete("/delete", async (req, res) => {
   try {
-    await Book.findByIdAndDelete(req.params.id);
-    res.json({ message: "Book deleted" });
+    const { workId } = req.body;
+    await Book.findOneAndDelete({ workId });
+    res.json({ message: "Book removed from shelves" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+// router.delete("/:id", async (req, res) => {
+//   try {
+//     await Book.findByIdAndDelete(req.params.id);
+//     res.json({ message: "Book deleted" });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
 
 module.exports = router;
