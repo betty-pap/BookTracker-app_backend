@@ -5,7 +5,6 @@ const Book = require("../models/Book");
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 
-
 // search route
 router.get("/search/:query", async (req, res) => {
   try {
@@ -92,7 +91,8 @@ router.post("/shelf/:status", async (req, res) => {
       cover, 
       cover_i,
       workId,
-      pageRead 
+      pageRead,
+      totalPages
     } = req.body;
     const status = req.params.status;
 
@@ -104,6 +104,8 @@ router.post("/shelf/:status", async (req, res) => {
       workId,
       status: status || 'tbr',
       pageRead: pageRead || 0,
+      totalPages: totalPages || 0, 
+      currentProgress: totalPages && pageRead ? Math.round((pageRead / totalPages) * 100) : 0
       //user: req.user.id // if you have user authentication
     });
 
@@ -146,14 +148,76 @@ router.delete("/delete", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// router.delete("/:id", async (req, res) => {
-//   try {
-//     await Book.findByIdAndDelete(req.params.id);
-//     res.json({ message: "Book deleted" });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
 
+// Update reading progress
+router.put("/progress/:workId", async (req, res) => {
+  try {
+    const { workId } = req.params;
+    const { currentPage, pagesRead, duration, totalPages } = req.body;
+    
+    const book = await Book.findOne({ workId });
+
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    // Update total pages if provided 
+    if (totalPages) {
+      book.totalPages = totalPages;
+    }
+
+    // Validate page number
+    if (book.totalPages && currentPage > book.totalPages) {
+      return res.status(400).json({ 
+        message: `Current page cannot exceed total pages (${book.totalPages})` 
+      });
+    }
+
+    // Update progress
+    book.pageRead = currentPage;
+    book.lastRead = new Date();
+
+    // Calculate progress percentage if total pages is known
+    if (book.totalPages && book.totalPages > 0) {
+      book.currentProgress = Math.round((currentPage / book.totalPages) * 100);
+    }
+
+    // Add reading session if pages were read
+    if (pagesRead && pagesRead > 0) {
+      book.readingSessions.push({
+        date: new Date(),
+        pagesRead,
+        startPage: currentPage - pagesRead,
+        endPage: currentPage,
+        duration: duration || 0
+      });
+    }
+
+    // Update status based on progress
+    if (book.currentProgress >= 100) {
+      book.status = 'finished';
+    } else if (book.currentProgress > 0 && book.status === 'tbr') {
+      book.status = 'reading';
+    }
+
+    await book.save();
+    res.json(book);
+  } catch (error) {
+    console.error('Error updating progress:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get currently reading books with progress
+router.get("/shelf/reading/with-progress", async (req, res) => {
+  try {
+    const books = await Book.find({ status: 'reading' })
+      .sort({ lastRead: -1 });
+    res.json(books);
+  } catch (err) {
+    console.error('Error fetching reading books:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;
