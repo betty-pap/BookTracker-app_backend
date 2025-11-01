@@ -235,4 +235,19 @@ router.get("/shelf/reading/with-progress", async (req, res) => {
   }
 });
 
+// PATCH /books/:id/rating
+router.patch("/:id/rating", async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const book = await Book.findByIdAndUpdate(
+      req.params.id,
+      { $set: { rating } },
+      { new: true }
+    );
+    res.json(book);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
