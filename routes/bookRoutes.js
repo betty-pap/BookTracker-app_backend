@@ -67,9 +67,6 @@ router.get("/details/:workId", async (req, res) => {
 });
 
 
-//shelfs
-
-
 // Get all books with a given status (shelf)
 router.get("/shelf/:status", async (req, res) => {
   try {
@@ -81,6 +78,24 @@ router.get("/shelf/:status", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Get one book by workId (check which shelf it's on)
+router.get("/find/:workId", async (req, res) => {
+  try {
+    const { workId } = req.params;
+    const book = await Book.findOne({ workId });
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.json(book);
+  } catch (err) {
+    console.error("Error finding book:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Add a book to a shelf
 router.post("/shelf/:status", async (req, res) => {
