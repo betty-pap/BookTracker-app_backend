@@ -27,6 +27,10 @@ const bookSchema = new mongoose.Schema({
     type: Number, // Percentage 0-100
     default: 0
   },
+  rating: { 
+    type: Number,
+    default: 0 
+  }, // 0–5, half-stars allowed
   lastRead: {
     type: Date,
     default: Date.now
