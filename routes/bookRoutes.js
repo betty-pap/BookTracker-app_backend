@@ -235,12 +235,13 @@ router.get("/shelf/reading/with-progress", async (req, res) => {
   }
 });
 
-// PATCH /books/:id/rating
-router.patch("/:id/rating", async (req, res) => {
+// STAR Rating
+router.patch("/:workId/rating", async (req, res) => {
   try {
+    const { workId } = req.params;
     const { rating } = req.body;
     const book = await Book.findByIdAndUpdate(
-      req.params.id,
+      {workId},
       { $set: { rating } },
       { new: true }
     );
