@@ -240,7 +240,7 @@ router.patch("/:workId/rating", async (req, res) => {
   try {
     const { workId } = req.params;
     const { rating } = req.body;
-    const book = await Book.findByIdAndUpdate(
+    const book = await Book.findOneAndUpdate(
       {workId},
       { $set: { rating } },
       { new: true }
