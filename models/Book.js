@@ -35,16 +35,16 @@ const bookSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  readingSessions: [{
-    date: {
-      type: Date,
-      default: Date.now
-    },
-    pagesRead: Number,
-    startPage: Number,
-    endPage: Number,
-    duration: Number // in minutes
-  }],
+  // readingSessions: [{
+  //   date: {
+  //     type: Date,
+  //     default: Date.now
+  //   },
+  //   pagesRead: Number,
+  //   startPage: Number,
+  //   endPage: Number,
+  //   duration: Number // in minutes
+  // }],
   cover: {
     type: String,
     default: "https://placehold.co/100x150?text=No+Cover"
