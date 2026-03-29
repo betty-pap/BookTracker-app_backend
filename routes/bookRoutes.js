@@ -20,6 +20,27 @@ router.get("/search", async (req, res) => {
   }
 });
 
+// shelf route
+router.get("/shelf/:status", async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    let query = Book.find({status});
+
+    // If it's reading status, sort by last read
+    if (status === 'reading') {
+      query = query.sort({ lastRead: -1 });
+    }
+
+    const book = await query;
+    res.json(book);
+
+  } catch (err) {
+    console.error('Error fetching books:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // details route
 router.get("/:workId", async (req, res) => {
   try {
@@ -48,28 +69,6 @@ router.get("/:workId", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch book details" });
-  }
-});
-
-
-// shelf route
-router.get("/shelf/:status", async (req, res) => {
-  try {
-    const { status } = req.params;
-
-    let query = Book.find({status});
-
-    // If it's reading status, sort by last read
-    if (status === 'reading') {
-      query = query.sort({ lastRead: -1 });
-    }
-
-    const book = await query;
-    res.json(book);
-
-  } catch (err) {
-    console.error('Error fetching books:', err);
-    res.status(500).json({ error: err.message });
   }
 });
 
