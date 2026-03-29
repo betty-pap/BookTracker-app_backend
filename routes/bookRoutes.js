@@ -61,8 +61,8 @@ router.get("/:workId", async (req, res) => {
       ...data,
       coverUrl,
       // Add shelf info if book is saved
-      shelf: savedBook?.shelf || null,
-      progress: savedBook?.progress || null,
+      shelf: savedBook?.status || null,
+      progress: savedBook?.pageRead || null,
       isSaved: !!savedBook
     });
 
