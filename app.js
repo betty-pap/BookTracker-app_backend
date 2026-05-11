@@ -19,10 +19,12 @@ app.get('/', (req, res) => {
 
 // Import routes
 const bookRoute = require("./routes/bookRoutes");
+const quoteRoutes = require("./routes/quoteRoutes");
 //const authRoutes = require("./routes/auth");
 
 // Use routes
 app.use("/api/books", bookRoute);
+app.use("/api/quotes", quoteRoutes);
 //app.use("/api/auth", authRoutes);
 
 //DB connection
